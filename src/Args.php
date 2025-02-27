@@ -275,11 +275,6 @@ final class Args {
             throw Terminal::fatal("Failed to parse $path/composer.json as JSON: " . json_last_error_msg());
         }
 
-        if ($name !== null && !isset($cj["extra"]["virion"])) {
-            Terminal::print("Notice: skipping non-virion dependency $path", true);
-            return;
-        }
-
         Terminal::print("Info: including source paths from $name", $this->verbose);
 
         $packageSourceRoots = [];
