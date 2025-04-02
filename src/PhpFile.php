@@ -253,7 +253,7 @@ final class PhpFile {
                 return;
             }
             $token = $tokens[$j];
-        } while ($token->id === T_WHITESPACE || $token->id === T_COMMENT || $token->id === T_DOC_COMMENT || $token->id === T_FUNCTION || $token->id === T_STRING);
+        } while ($token->id === T_WHITESPACE || $token->id === T_COMMENT);
     }
 
     /**
