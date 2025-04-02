@@ -73,7 +73,7 @@ final class PhpFile {
                 $offset = 0;
                 self::skipWhitespace($tokens, $outstanding, $offset);
                 if ($outstanding !== null) {
-                    //throw Terminal::fatal("Error parsing $filePath: Trailing non-whitespace bytes {$outstanding->printId()}");
+                    throw Terminal::fatal("Error parsing $filePath: Trailing non-whitespace bytes {$outstanding->printId()}");
                 }
                 break;
             }
@@ -253,7 +253,7 @@ final class PhpFile {
                 return;
             }
             $token = $tokens[$j];
-        } while ($token->id === T_WHITESPACE || $token->id === T_COMMENT);
+        } while ($token->id === T_WHITESPACE || $token->id === T_COMMENT || $token->id === T_DOC_COMMENT);
     }
 
     /**
