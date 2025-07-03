@@ -130,7 +130,7 @@ final class Args {
         /** @var Processor[] $processors */
         $processors = [];
 
-        $epitope = "libs\\_" . bin2hex(random_bytes(8));
+        $epitope = "libs\\_" . 'current';
 
         $inputDir = isset($opts["i"]) ? $opts["i"] : null;
         if (is_array($inputDir)) {
