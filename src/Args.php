@@ -37,6 +37,9 @@ final class Args {
     /** @var array<string, true> for virion processor deduplication when transitive dependency is repeated */
     private array $inferredComposer = [];
 
+    /** @var string[] Paths to exclude from the PHAR/source build */
+    public array $exclude = [];
+
     /**
      * @param array{string, string}[] $inputFiles
      * @param string[] $sourceRoots
@@ -50,7 +53,9 @@ final class Args {
         public ?string $outputPhar,
         public bool $verbose,
         public array $processors,
+        array $exclude = [],
     ) {
+        $this->exclude = $exclude;
     }
 
     public static function parse() : self {
@@ -67,49 +72,32 @@ final class Args {
             Terminal::print("Error: `-r` can only be passed once.", true);
             throw self::cliUsage();
         }
-        /** @var ?string $outputSourceRoot */
 
         $outputDir = isset($opts["o"]) ? $opts["o"] : null;
         if (is_array($outputDir)) {
             Terminal::print("Error: `-o` can only be passed once.", true);
             throw self::cliUsage();
         }
-        /** @var ?string $outputDir */
 
         $outputPhar = isset($opts["p"]) ? $opts["p"] : null;
         if (is_array($outputPhar)) {
             Terminal::print("Error: `-p` can only be passed once.", true);
             throw self::cliUsage();
         }
-        /** @var null|false|string $outputPhar */
+
+        /** @var string[] $exclude */
+        $exclude = isset($opts["e"]) ? (array) $opts["e"] : [];
 
         $inputFiles = [];
         foreach ($inputFilesRaw as $inputFile) {
             $inputFile = rtrim($inputFile, "/\\");
-
-            $offset = 0;
-            while (true) {
-                $pos = strpos($inputFile, ":", $offset);
-                if ($pos === false) {
-                    break;
-                }
-
-                // Windows absolute path support
-                if ($pos + 1 < strlen($inputFile) && $inputFile[$pos + 1] === "\\") {
-                    $offset = $pos + 1;
-                    continue;
-                }
-
-                break;
-            }
-
+            $pos = strpos($inputFile, ":");
             if ($pos === false) {
                 $name = basename($inputFile);
             } else {
-                $name = substr($inputFile, $pos);
-                $inputFile = substr($inputFile, $pos + 1);
+                $name = substr($inputFile, $pos + 1);
+                $inputFile = substr($inputFile, 0, $pos);
             }
-
             $inputFiles[] = [$name, $inputFile];
         }
 
@@ -137,7 +125,6 @@ final class Args {
             Terminal::print("Error: `-i` can only be passed once.", true);
             throw self::cliUsage();
         }
-        /** @var ?string $inputDir */
 
         $composer = isset($opts["c"]) ? $opts["c"] : null;
         if (is_array($composer)) {
@@ -174,6 +161,7 @@ final class Args {
             outputPhar: $outputPhar,
             verbose: isset($opts["v"]),
             processors: $processors,
+            exclude: $exclude,
         );
 
         if ($inputDir !== null) {
@@ -186,7 +174,6 @@ final class Args {
             if ($composer === null) {
                 array_unshift($args->sourceRoots, "$inputDir/src");
             }
-            // else, sourceRoots will be populated in inferComposerArgs instead
         }
 
         if ($composer !== null) {
@@ -241,19 +228,8 @@ final class Args {
         echo "                 Assumes that `composer install` was already run.\n";
         echo "                 If a value is not provided, uses the same path as `-i`.\n";
         echo "                 Otherwise, PATH should be the path to the directory containing composer.json.\n";
-        echo "\n";
-        echo "EXAMPLES\n";
-        echo "  Package a plugin phar:\n";
-        echo "  $ php pharynx.phar -i path/to/your/plugin -p my-plugin.phar\n";
-        echo "\n";
-        echo "  Package a plugin phar with composer virion dependencies:\n";
-        echo "  $ php pharynx.phar -i path/to/your/plugin -c -p my-plugin.phar\n";
-        echo "\n";
-        echo "  Bundle output to a directory without building phar\n";
-        echo "  $ php pharynx.phar -i path/to/your/plugin -o output\n";
-        echo "\n";
-        echo "  Package a plugin phar to output.phar, along with generated files in a gen directory:\n";
-        echo "  $ php pharynx.phar -i path/to/your/plugin -s path/to/gen\n";
+        echo "  -e PATH      : Paths to exclude from the build.\n";
+        echo "                 Can be passed multiple times\n";
         exit(1);
     }
 
