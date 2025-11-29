@@ -90,8 +90,8 @@ final class Main {
     /**
      * @param list<PhpFile> $files
      */
-    private static function parseFiles(string $src, array &$files, bool $verbose) : void {
-        if (is_file($src)) {
+    private static function parseFiles(string $src, array &$files, bool $verbose, array $exclude) : void {
+        if (is_file($src) && !in_array($src, $exclude) {
             $phpFile = PhpFile::parse($src, $verbose);
             $files[] = $phpFile;
             return;
@@ -101,6 +101,8 @@ final class Main {
             if (substr($file, -4) !== ".php") {
                 continue;
             }
+
+            if (in_array($file, $exclude) continue;
 
             $phpFile = PhpFile::parse($file, $verbose);
             $files[] = $phpFile;
