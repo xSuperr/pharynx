@@ -91,7 +91,7 @@ final class Main {
      * @param list<PhpFile> $files
      */
     private static function parseFiles(string $src, array &$files, bool $verbose, array $exclude) : void {
-        if (is_file($src) && !in_array($src, $exclude) {
+        if (is_file($src) && !in_array($src, $exclude)) {
             $phpFile = PhpFile::parse($src, $verbose);
             $files[] = $phpFile;
             return;
@@ -102,7 +102,7 @@ final class Main {
                 continue;
             }
 
-            if (in_array($file, $exclude) continue;
+            if (in_array($file, $exclude)) continue;
 
             $phpFile = PhpFile::parse($file, $verbose);
             $files[] = $phpFile;
