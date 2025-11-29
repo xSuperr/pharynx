@@ -51,7 +51,7 @@ final class Main {
 
         $files = [];
         foreach ($args->sourceRoots as $sourceRoot) {
-            self::parseFiles($sourceRoot, $files, $args->verbose);
+            self::parseFiles($sourceRoot, $files, $args->verbose, $args->exclude);
         }
 
         foreach ($args->processors as $processor) {
